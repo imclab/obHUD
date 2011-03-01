@@ -1,0 +1,4 @@
+# instructs git to ignore some files
+*.o
+*~
+\#*
