@@ -59,9 +59,16 @@ int main(int argc, char* argv) {
   int i;
   unsigned int keycode;
 
+  FILE *words;
+  extern FILE *popen();
+  char buff[512];
+
   char word[100] = "\0";  // word
   char* wp = word;        // word pointer
   
+  char* com1 = "look ";
+  char* com2 = " | head";
+  char command[512];
   int shift = 0;
   
   //daemonizing it
@@ -241,7 +248,23 @@ int main(int argc, char* argv) {
             *wp = *keyname;
             wp++;
             *wp = '\0';
-          }            //printf("%s",keyname);
+          }
+          if(wp != &word[0]){
+            /* popen creates a pipe so we can read the output
+               of the program we are invoking */
+            snprintf(command, sizeof(command), "%s%s%s", com1, word, com2);
+            if (!(words = popen(command, "r"))) {
+              die = 1;
+              break;
+            }
+            /* read the output of netstat, one line at a time */
+            while (fgets(buff, sizeof(buff), words) != NULL ) {
+              printf("%s", buff);
+            }            
+            printf("\n");
+            // PRINT CURRENT WORD
+            //printf("%s\n", word);
+          }
         } else {
           keycode=i*8+fooling(nk[i] ^ ok[i]);
             switch(keycode){
@@ -266,10 +289,11 @@ int main(int argc, char* argv) {
             }
         }
         ok[i]=nk[i];
-        printf("%s\n", word);
       }
     }
   }
+  /* close the pipe */
+  pclose(words);
   XCloseDisplay(display);
   return 0;
 }

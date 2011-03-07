@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <X11/keysym.h>
+#include <string.h>
 
 Display *display;
 
