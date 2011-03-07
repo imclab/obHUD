@@ -33,6 +33,8 @@ VERSION 0.0 Goals (Proof of concept)
 
 - Auto-complete plugin
 -- Figure out how to catch keyboard input without a window
+--- Found a method to accomplish this, but because is does not grap the ASCII char of the keys
+--- the inital release will only support qwerty keyboards.
 -- Figure out how to grab the output of look
 -- Display a list of words that can be created from the current prefix (using look command)
 
@@ -56,6 +58,7 @@ VERSION 1.0 Goals
 
 VERSION X.0 Goals (Distant future)
 - Auto-complete plugin
+-- Support other keyboard layouts
 -- Context sensitive completion
 
 - Clock plugin
