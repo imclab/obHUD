@@ -29,13 +29,17 @@
 #include <X11/Xlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <X11/keysym.h>
 #include <string.h>
+#include <xosd.h>
 
 Display *display;
+int WC = 10;
 
 int die;
 char clear[] = "{CLEAR}";
 char bkspce[] = "{BKSPCE}";
 char ignore[] = "{IGNORE}";
+int GOAWAY = 500;  // go away in 1/2 seconds

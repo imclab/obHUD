@@ -24,7 +24,19 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-all: wordcomplete.o
+
+# build flags
+CFLAGS=`xosd-config --cflags` -c
+LIBS=`xosd-config --libs`
+
+wordcomplete: wordcomplete.o
+	/usr/bin/gcc $(LIBS) `pkg-config --cflags x11` -o $@ wordcomplete.o
 
 wordcomplete.o: wordcomplete.c
-	gcc `pkg-config --cflags --libs x11` -o wordcomplete wordcomplete.c
+	/usr/bin/gcc $(CFLAGS) `pkg-config --cflags x11` wordcomplete.c
+
+
+###all: wordcomplete.o
+
+#wordcomplete.o: wordcomplete.c
+#	gcc `pkg-config --cflags --libs x11` $(CFLAGS) $(LIBS) -o wordcomplete wordcomplete.c

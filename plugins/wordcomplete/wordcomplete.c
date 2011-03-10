@@ -47,15 +47,16 @@ int fooling(unsigned char c) {
   case 128: // menu,
     return 7;
   }
+  return -1; // shouldn't happen
 }
 
 void restore(int s) {
   die=1;
 }
 
-int main(int argc, char* argv) {
-  unsigned char ok[32]; // old key
-  unsigned char nk[32]; // new key
+int main(int argc, char** argv) {
+  char ok[32]; // old key
+  char nk[32]; // new key
   int i;
   unsigned int keycode;
 
@@ -67,9 +68,26 @@ int main(int argc, char* argv) {
   char* wp = word;        // word pointer
   
   char* com1 = "look ";
-  char* com2 = " | head";
+  char com2[20];
+  snprintf(com2, 20, " | head -n %d", WC);
   char command[512];
   int shift = 0;
+  int goAway = 0;
+  
+  xosd *osd;
+  osd = xosd_create(WC);
+  if (osd == NULL)
+  {
+    perror ("Could not create \"osd\"");
+    exit (-1);
+  }
+  xosd_set_pos(osd,XOSD_middle);
+  xosd_set_align(osd,XOSD_center);
+  xosd_set_colour(osd, "white");
+  xosd_set_outline_offset(osd, 1);
+  xosd_set_outline_colour(osd, "black");
+
+  xosd_scroll(osd,WC);
   
   //daemonizing it
   /*if (fork() < 0) {
@@ -90,6 +108,13 @@ int main(int argc, char* argv) {
   }
   XQueryKeymap(display, ok);
   while(!die) {
+    if(goAway++ >= GOAWAY){
+      int wc = 0;
+      while (wc < WC){
+        xosd_display(osd, wc++, XOSD_string, "");
+      }
+      goAway = 0;
+    }
     fflush(stdout);
     usleep(5000);
     XQueryKeymap(display, nk);
@@ -249,6 +274,9 @@ int main(int argc, char* argv) {
             wp++;
             *wp = '\0';
           }
+          goAway = 0;
+          int wc = 0;
+          
           if(wp != &word[0]){
             /* popen creates a pipe so we can read the output
                of the program we are invoking */
@@ -259,11 +287,13 @@ int main(int argc, char* argv) {
             }
             /* read the output of netstat, one line at a time */
             while (fgets(buff, sizeof(buff), words) != NULL ) {
-              printf("%s", buff);
-            }            
-            printf("\n");
-            // PRINT CURRENT WORD
-            //printf("%s\n", word);
+              buff[strcspn ( buff, "\n" )] = '\0';  // remove \n from end of string
+              xosd_display(osd, wc++, XOSD_string, buff);
+            }
+          }
+
+          while (wc < WC){
+            xosd_display(osd, wc++, XOSD_string, "");
           }
         } else {
           keycode=i*8+fooling(nk[i] ^ ok[i]);
