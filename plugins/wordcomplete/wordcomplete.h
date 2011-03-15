@@ -27,11 +27,12 @@
  */
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <X11/extensions/XTest.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <X11/keysym.h>
 #include <string.h>
 #include <xosd.h>
 

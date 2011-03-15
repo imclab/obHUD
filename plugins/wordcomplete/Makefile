@@ -30,7 +30,7 @@ CFLAGS=`xosd-config --cflags` -c
 LIBS=`xosd-config --libs`
 
 wordcomplete: wordcomplete.o
-	/usr/bin/gcc $(LIBS) `pkg-config --cflags x11` -o $@ wordcomplete.o
+	/usr/bin/gcc $(LIBS) `pkg-config --libs x11 xtst` -o $@ wordcomplete.o
 
 wordcomplete.o: wordcomplete.c
 	/usr/bin/gcc $(CFLAGS) `pkg-config --cflags x11` wordcomplete.c

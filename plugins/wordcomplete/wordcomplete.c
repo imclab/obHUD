@@ -57,8 +57,11 @@ void restore(int s) {
 int main(int argc, char** argv) {
   char ok[32]; // old key
   char nk[32]; // new key
+  int selwnum = 0;
+  char selword[100] = "\0";
   int i;
-  unsigned int keycode;
+  unsigned int keycode; 
+  int capscount = 0;
 
   FILE *words;
   extern FILE *popen();
@@ -227,10 +230,21 @@ int main(int argc, char** argv) {
           case 22: // "backspace";
             keyname = bkspce;
             break;
+          case 66: // "caps lock";
+            if(capscount++){
+              capscount = 0;
+              int zz;
+              for(zz = strlen(word); zz < strlen(selword); zz++){
+                //printf("%c\n", selword[zz]);
+                keycode = XKeysymToKeycode(display, selword[zz]);
+                XTestFakeKeyEvent(display, keycode, True, 0);
+                XTestFakeKeyEvent(display, keycode, False, 0);
+                XFlush(display);
+              }
+            }
+            shift = !shift;            
           case 50:
           case 62: // "shift down";
-            shift = !shift;
-          case 66: // "caps lock";
             shift = !shift;
           case 37: // "control"
           case 135: // "menu"
@@ -286,8 +300,12 @@ int main(int argc, char** argv) {
               break;
             }
             /* read the output of netstat, one line at a time */
+            int zz = 0;
             while (fgets(buff, sizeof(buff), words) != NULL ) {
               buff[strcspn ( buff, "\n" )] = '\0';  // remove \n from end of string
+              if(zz++ == selwnum){
+                snprintf(selword,sizeof(selword), "%s", buff);
+              }
               xosd_display(osd, wc++, XOSD_string, buff);
             }
           }
