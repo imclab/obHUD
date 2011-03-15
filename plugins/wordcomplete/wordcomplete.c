@@ -65,15 +65,15 @@ int main(int argc, char** argv) {
 
   FILE *words;
   extern FILE *popen();
-  char buff[512];
+  char buff[100];
 
   char word[100] = "\0";  // word
   char* wp = word;        // word pointer
   
   char* com1 = "look ";
   char com2[20];
-  snprintf(com2, 20, " | head -n %d", WC);
-  char command[512];
+  snprintf(com2, sizeof(com2), " | head -n %d", WC);
+  char command[100];
   int shift = 0;
   int goAway = 0;
   
@@ -92,14 +92,6 @@ int main(int argc, char** argv) {
 
   xosd_scroll(osd,WC);
   
-  //daemonizing it
-  /*if (fork() < 0) {
-    return -1;
-  }
-  if (setsid() < 0) {
-    return -1;
-  }*/
-
   //Handle nice closing
   die=0;
   signal(SIGTERM, restore);

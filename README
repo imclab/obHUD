@@ -35,8 +35,11 @@ VERSION 0.0 Goals (Proof of concept)
 -- Figure out how to catch keyboard input without a window
 --- Found a method to accomplish this, but because is does not grap the ASCII char of the keys
 --- the inital release will only support qwerty keyboards.
--- Figure out how to grab the output of look
 -- Display a list of words that can be created from the current prefix (using look command)
+--- Done with look
+-- Figure out how to grab the output of look
+--- Done with popen
+-- Autocomplete feature is currently capslock twice... this will change but for now :)
 
 - Makefile
 -- Should be able to automate the installation of this project.
