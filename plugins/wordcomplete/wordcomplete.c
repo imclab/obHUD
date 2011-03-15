@@ -63,6 +63,10 @@ int main(int argc, char** argv) {
   unsigned int keycode; 
   int capscount = 0;
 
+  char disable_caps[50] = "xmodmap -e \"remove lock = Caps_Lock\"";
+  char enable_caps[50] = "setxkbmap -option";
+  
+  
   FILE *words;
   extern FILE *popen();
   char buff[100];
@@ -76,6 +80,9 @@ int main(int argc, char** argv) {
   char command[100];
   int shift = 0;
   int goAway = 0;
+  
+  popen(disable_caps, "r");  
+
   
   xosd *osd;
   osd = xosd_create(WC);
@@ -228,17 +235,19 @@ int main(int argc, char** argv) {
               int zz;
               for(zz = strlen(word); zz < strlen(selword); zz++){
                 //printf("%c\n", selword[zz]);
+                //KeySym upper, lower;
                 keycode = XKeysymToKeycode(display, selword[zz]);
+                //printf("\nu %d, l %d",upper,lower);
                 XTestFakeKeyEvent(display, keycode, True, 0);
                 XTestFakeKeyEvent(display, keycode, False, 0);
                 XFlush(display);
               }
             }
             shift = !shift;            
+          case 37: // "control"
           case 50:
           case 62: // "shift down";
             shift = !shift;
-          case 37: // "control"
           case 135: // "menu"
           case 107: // "PrtSc"
           case 127: // "pause"
