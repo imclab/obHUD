@@ -67,7 +67,7 @@ class PyOSDClock:
         self.osd.display(now)
         self.osd.wait_until_no_display()
 
-        
-clock = PyOSDClock()
 
-clock.run()
+if __name__ == "__main__":        
+    clock = PyOSDClock()
+    clock.run()

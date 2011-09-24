@@ -70,8 +70,10 @@ VERSION X.0 Goals (Distant future)
 
 DEPENDENCIES:
 libxosd
+pyosd
+python-virutalkey
+keylogger.py
 look and a dictionary for look
-
 
 ARCH LINUX SETUP
 sudo pacman -Sy libxosd

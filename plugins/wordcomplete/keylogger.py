@@ -169,8 +169,8 @@ def fetch_keys():
             break
 
     # caps lock state
-    if ord(keypresses_raw[8]) & 4: caps_lock_state = int(not caps_lock_state)
-
+    #if ord(keypresses_raw[8]) & 4: caps_lock_state = int(not caps_lock_state)
+    # first this is buggy second, I do not need this functionality.
 
     # aggregate the pressed keys
     pressed = []
