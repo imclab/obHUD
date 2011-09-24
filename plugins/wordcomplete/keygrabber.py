@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 /* Copyright (c) 2011, Kevin Porter
  * All rights reserved.
  * 
@@ -25,18 +26,3 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include <X11/keysym.h>
-#include <X11/extensions/XTest.h>
-#include <stdio.h>
-#include <signal.h>
-#include <xosd.h>
-
-Display *display;
-int WC = 10;
-
-int die;
-char clear[] = "{CLEAR}";
-char bkspce[] = "{BKSPCE}";
-char ignore[] = "{IGNORE}";
-int GOAWAY = 500;  // go away in 1/2 seconds
