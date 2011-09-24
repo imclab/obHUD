@@ -75,10 +75,10 @@ class PyOSDWordComplete:
     def tick(self):
         now = time.asctime(time.localtime())
         changed, modifiers, keys = kl.fetch_keys()
-        if(not keys and self.previous_key == "<caps lock>") :
-            if(modifiers["left ctrl"]) :
+        if(self.previous_key == "<caps lock>") :
+            if(keys == "<esc>") :
                 return False            
-            elif( modifiers["left shift"] ) :
+            elif(not keys and modifiers["left shift"] ) :
                 self.caps = False
                 self.selected+=1
                 if(self.selected > 9 or self.selected > len(self.result)) :
