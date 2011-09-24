@@ -28,6 +28,18 @@
 
 #include "wordcomplete.h"
 
+#define DISABLE_CAPS "xmodmap -e \"keycode 0x42 = VoidSymbol\""
+#define ENABLE_CAPS "xmodmap -e \"keycode 0x42 = Caps_Lock\""
+#define LOOKUP "look "
+#define LIST_WORDS " | head -n %d"
+#define LOOKUP_LIST_SIZE 20
+#define SLEEP_TIME 5000
+#define WC 10
+#define GOAWAY 500  
+#define CLEAR "{CLEAR}"
+#define BKSPCE "{BKSPCE}"
+#define IGNORE "{IGNORE}"
+
 int fooling(unsigned char c) {
   switch(c) {
   case 1: // alt
@@ -54,6 +66,150 @@ void restore(int s) {
   die=1;
 }
 
+
+void complete(){
+
+}
+
+char* getKeyName(int keycode){
+  char ks;
+
+  printf("keycode = %d\n",keycode);
+  switch(keycode){
+    // numpad
+  case 79: // 7
+  case 80: // 8
+  case 81: // 9
+  case 83: // 4
+  case 84: // 5
+  case 85: // 6
+  case 87: // 1
+  case 88: // 2
+  case 89: // 3
+  case 90: // 0
+    // Numpad keys do not work att
+    return CLEAR;
+    break;
+    // numbers
+  case 10: // 1
+  case 11: // 2
+  case 12: // 3
+  case 13: // 4
+  case 14: // 5
+  case 15: // 6
+  case 16: // 7
+  case 17: // 8
+  case 18: // 9
+  case 19: // 0
+    // top row
+  case 24: // q
+  case 25: // w
+  case 26: // e
+  case 27: // r
+  case 28: // t
+  case 29: // y
+  case 30: // u
+  case 31: // i
+  case 32: // o
+  case 33: // p
+    // middle row
+  case 38: // a
+  case 39: // s
+  case 40: // d
+  case 41: // f
+  case 42: // g
+  case 43: // h
+  case 44: // j
+  case 45: // k
+  case 46: // l
+    // bottom row
+  case 52: // z
+  case 53: // x
+  case 54: // c
+  case 55: // v
+  case 56: // b
+  case 57: // n
+  case 58: // m
+    ks = XKeycodeToKeysym(display, keycode, 0);
+    return XKeysymToString(ks);
+    break;
+            
+  case 105: // "ctrl down";
+  case 133: // "win down";
+  case 108: // "alt gr down";
+  case 64: // "alt down";
+  case 34: // "å";
+  case 48: // "ä";
+  case 47: // "ö";
+  case 23: // "tab";
+  case 67: // "F1";
+  case 68: // "F2";
+  case 69: // "F3";
+  case 70: // "F4";
+  case 71: // "F5";
+  case 72: // "F6";
+  case 73: // "F7";
+  case 74: // "F8";
+  case 75: // "F9";
+  case 76: // "F10";
+  case 95: // "F11";
+  case 96: // "F12";
+  case 9:  // "escape";
+  case 111: // "up"
+  case 113: // "left"
+  case 114: // "right"
+  case 116: // "down"
+  case 65: // "space"
+  case 35: // "]"
+  case 51: // "\"
+  case 59: // ","
+  case 60: // "."`
+  case 61: // "/"
+  case 49: // "~"
+  case 20: // "-"
+  case 21: // "="
+  case 119: // "del" 
+  case 36:  // "return";
+  case 104: // "return";
+    return CLEAR;
+    break;
+  case 22: // "backspace";
+    return BKSPCE;
+    break;
+  case 66: // "caps lock";
+    /*
+    if(capscount++){
+      capscount = 0;
+      int zz;
+      for(zz = strlen(word); zz < strlen(selword); zz++){
+        //printf("%c\n", selword[zz]);
+        //KeySym upper, lower;
+        keycode = XKeysymToKeycode(display, selword[zz]);
+        //printf("\nu %d, l %d",upper,lower);
+        XTestFakeKeyEvent(display, keycode, True, 0);
+        XTestFakeKeyEvent(display, keycode, False, 0);
+        XFlush(display);
+      }
+    }
+    */
+    //shift = !shift;            
+  case 37: // "control"
+  case 50:
+  case 62: // "shift down";
+    //shift = !shift;
+  case 135: // "menu"
+  case 107: // "PrtSc"
+  case 127: // "pause"
+  case 118: // "insert"
+  case 77: // "Num Lock"
+  case 78: // "Scroll Lock"
+    return IGNORE;
+    break;
+  default:
+    printf("\n*Error: keycode %d not recognized*\n",keycode);
+  }
+}
+
 int main(int argc, char** argv) {
   char ok[32]; // old key
   char nk[32]; // new key
@@ -63,10 +219,6 @@ int main(int argc, char** argv) {
   unsigned int keycode; 
   int capscount = 0;
 
-  char disable_caps[50] = "xmodmap -e \"remove lock = Caps_Lock\"";
-  char enable_caps[50] = "setxkbmap -option";
-  
-  
   FILE *words;
   extern FILE *popen();
   char buff[100];
@@ -74,15 +226,14 @@ int main(int argc, char** argv) {
   char word[100] = "\0";  // word
   char* wp = word;        // word pointer
   
-  char* com1 = "look ";
-  char com2[20];
-  snprintf(com2, sizeof(com2), " | head -n %d", WC);
+  char com2[LOOKUP_LIST_SIZE];
+  snprintf(com2, LOOKUP_LIST_SIZE, LIST_WORDS, WC);
   char command[100];
   int shift = 0;
   int goAway = 0;
   
-  popen(disable_caps, "r");  
-
+  popen(DISABLE_CAPS, "r");  
+  printf("CAPSLOCK DISABLED");
   
   xosd *osd;
   osd = xosd_create(WC);
@@ -118,171 +269,40 @@ int main(int argc, char** argv) {
       goAway = 0;
     }
     fflush(stdout);
-    usleep(5000);
+    usleep(SLEEP_TIME);
     XQueryKeymap(display, nk);
     for(i=0;i<32;i++) {
       if(nk[i] != ok[i]) {
         if(nk[i] != 0) {
           //pressed key
           keycode=i*8+fooling(nk[i] ^ ok[i]);
-          char ks;
           char *keyname;
           keyname="";
-          switch(keycode){
-            // numpad
-          case 79: // 7
-          case 80: // 8
-          case 81: // 9
-          case 83: // 4
-          case 84: // 5
-          case 85: // 6
-          case 87: // 1
-          case 88: // 2
-          case 89: // 3
-          case 90: // 0
-            // Numpad keys do not work att
-            keyname = clear;
-            break;
-            // numbers
-          case 10: // 1
-          case 11: // 2
-          case 12: // 3
-          case 13: // 4
-          case 14: // 5
-          case 15: // 6
-          case 16: // 7
-          case 17: // 8
-          case 18: // 9
-          case 19: // 0
-            // top row
-          case 24: // q
-          case 25: // w
-          case 26: // e
-          case 27: // r
-          case 28: // t
-          case 29: // y
-          case 30: // u
-          case 31: // i
-          case 32: // o
-          case 33: // p
-            // middle row
-          case 38: // a
-          case 39: // s
-          case 40: // d
-          case 41: // f
-          case 42: // g
-          case 43: // h
-          case 44: // j
-          case 45: // k
-          case 46: // l
-            // bottom row
-          case 52: // z
-          case 53: // x
-          case 54: // c
-          case 55: // v
-          case 56: // b
-          case 57: // n
-          case 58: // m
-            ks = XKeycodeToKeysym(display, keycode, 0);
-            keyname = XKeysymToString(ks);
-            break;
-            
-          case 105: // "ctrl down";
-          case 133: // "win down";
-          case 108: // "alt gr down";
-          case 64: // "alt down";
-          case 34: // "å";
-          case 48: // "ä";
-          case 47: // "ö";
-          case 23: // "tab";
-          case 67: // "F1";
-          case 68: // "F2";
-          case 69: // "F3";
-          case 70: // "F4";
-          case 71: // "F5";
-          case 72: // "F6";
-          case 73: // "F7";
-          case 74: // "F8";
-          case 75: // "F9";
-          case 76: // "F10";
-          case 95: // "F11";
-          case 96: // "F12";
-          case 9:  // "escape";
-          case 111: // "up"
-          case 113: // "left"
-          case 114: // "right"
-          case 116: // "down"
-          case 65: // "space"
-          case 35: // "]"
-          case 51: // "\"
-          case 59: // ","
-          case 60: // "."`
-          case 61: // "/"
-          case 49: // "~"
-          case 20: // "-"
-          case 21: // "="
-          case 119: // "del" 
-          case 36:  // "return";
-          case 104: // "return";
-            keyname = clear;
-            break;
-          case 22: // "backspace";
-            keyname = bkspce;
-            break;
-          case 66: // "caps lock";
-            if(capscount++){
-              capscount = 0;
-              int zz;
-              for(zz = strlen(word); zz < strlen(selword); zz++){
-                //printf("%c\n", selword[zz]);
-                //KeySym upper, lower;
-                keycode = XKeysymToKeycode(display, selword[zz]);
-                //printf("\nu %d, l %d",upper,lower);
-                XTestFakeKeyEvent(display, keycode, True, 0);
-                XTestFakeKeyEvent(display, keycode, False, 0);
-                XFlush(display);
-              }
-            }
-            shift = !shift;            
-          case 37: // "control"
-          case 50:
-          case 62: // "shift down";
-            shift = !shift;
-          case 135: // "menu"
-          case 107: // "PrtSc"
-          case 127: // "pause"
-          case 118: // "insert"
-          case 77: // "Num Lock"
-          case 78: // "Scroll Lock"
-            keyname = ignore;
-            break;
-          default:
-            printf("\n*Error: keycode %d not recognized*\n",keycode);
-          }
+          keyname = getKeyName(keycode);
 
           if(strcmp(keyname,"Q")==0) {
             //keyname="[left key]";
-            keyname = clear;
+            keyname = CLEAR;
           } else if(strcmp(keyname,"S")==0){
             //keyname="[right key]";
-            keyname = clear;
+            keyname = CLEAR;
           } else if(strcmp(keyname,"R")==0){
             //keyname="[up key]";
-            keyname = clear;
+            keyname = CLEAR;
           } else if(strcmp(keyname,"T")==0){
             //keyname="[down key]";
-            keyname = clear;
+            keyname = CLEAR;
           } 
 
-          if(keyname == clear){
+          if(strcmp( keyname, CLEAR) == 0){
             wp = word;
             *wp = '\0';
-          } else if(keyname == bkspce){
+          } else if(strcmp( keyname, BKSPCE) == 0){
             if(wp != &word[0]){
               wp--;
               *wp = '\0';
             }
-          } else if(keyname == ignore){
+          } else if(strcmp( keyname, IGNORE) == 0){
             //nothing
           } else {
             *wp = *keyname;
@@ -295,7 +315,7 @@ int main(int argc, char** argv) {
           if(wp != &word[0]){
             /* popen creates a pipe so we can read the output
                of the program we are invoking */
-            snprintf(command, sizeof(command), "%s%s%s", com1, word, com2);
+            snprintf(command, sizeof(command), "%s%s%s", LOOKUP, word, com2);
             if (!(words = popen(command, "r"))) {
               die = 1;
               break;

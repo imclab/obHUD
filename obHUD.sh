@@ -1,2 +1,2 @@
-plugins/clock/clock &
+plugins/clock/clock.py &
 plugins/wordcomplete/wordcomplete &
