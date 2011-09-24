@@ -31,9 +31,11 @@
 
 import pyosd, time, subprocess, string, virtkey
 import keylogger as kl
+import wordbank
 
 class PyOSDWordComplete:
     """ Displays a clock on the screen """
+    wb = wordbank.WordBank()
     lines = 10;
     caps = False;
     selected = 0;
@@ -70,7 +72,7 @@ class PyOSDWordComplete:
         loop = True
         while(loop):
             loop = self.tick()
-            #time.sleep(1) # need higher resolution timer
+            time.sleep(.05)
 
     def tick(self):
         now = time.asctime(time.localtime())
@@ -81,7 +83,7 @@ class PyOSDWordComplete:
             elif(not keys and modifiers["left shift"] ) :
                 self.caps = False
                 self.selected+=1
-                if(self.selected > 9 or self.selected > len(self.result)) :
+                if(self.selected > (self.lines - 1) or self.selected > len(self.result)) :
                     self.selected = 0
                 self.previous_key = ""
         if keys : 
@@ -111,8 +113,9 @@ class PyOSDWordComplete:
             self.previous_key = keys
 
             if(self.word):
-                raw_result = subprocess.Popen(['look', self.word], stdout=subprocess.PIPE).communicate()[0]
-                self.result = string.split(raw_result)
+                #raw_result = subprocess.Popen(['look', self.word], stdout=subprocess.PIPE).communicate()[0]
+                #self.result = string.split(raw_result)
+                self.result = self.wb.getWords(self.word)
             else:
                 self.result = []
 
@@ -131,8 +134,6 @@ class PyOSDWordComplete:
                 self.osd.display("", line = i)
                 
         return True
-
-
 
 if __name__ == "__main__":
     subprocess.call(["xmodmap","-e", "clear Lock"])
