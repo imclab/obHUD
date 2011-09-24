@@ -26,7 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
 #include <stdio.h>
 #include <signal.h>
